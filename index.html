@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pitch Garry — Get your startup idea roasted by AI</title>
+<meta name="description" content="Call an AI parody of Garry Tan and find out if your startup idea is good or bad. Built at the Call My Agent Hackathon. Powered by AgentPhone." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yc:       #FF6600;
+    --yc-deep:  #E55A00;
+    --yc-soft:  #FFE6D1;
+    --cream:    #FFF6EC;
+    --ink:      #1A1A1A;
+    --ink-2:    #4A4A4A;
+    --line:     rgba(26,26,26,0.12);
+    --line-2:   rgba(26,26,26,0.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--cream); color: var(--ink); }
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 14px;
+    line-height: 1.55;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(circle at 10% 10%, rgba(255,102,0,0.06), transparent 40%),
+      radial-gradient(circle at 90% 30%, rgba(255,102,0,0.05), transparent 45%),
+      radial-gradient(circle at 50% 100%, rgba(255,102,0,0.04), transparent 50%);
+  }
+
+  /* subtle grain */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    z-index: 1;
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>");
+    mix-blend-mode: multiply;
+  }
+
+  .wrap { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+
+  /* ─────── NAV ─────── */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 14px; letter-spacing: -0.01em;
+  }
+  .logo-mark {
+    width: 28px; height: 28px;
+    background: var(--yc); color: white;
+    display: grid; place-items: center;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 22px;
+    border-radius: 4px;
+    box-shadow: 0 2px 0 var(--yc-deep);
+  }
+  .nav-links { display: flex; gap: 28px; align-items: center; }
+  .nav-links a {
+    color: var(--ink-2); text-decoration: none;
+    font-size: 12px; letter-spacing: 0.02em;
+    transition: color 0.15s;
+  }
+  .nav-links a:hover { color: var(--yc); }
+  .nav-tag {
+    font-size: 11px;
+    padding: 5px 10px;
+    background: var(--yc);
+    color: white;
+    border-radius: 100px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-decoration: none !important;
+    box-shadow: 0 2px 0 var(--yc-deep);
+  }
+  .nav-tag:hover { color: white !important; transform: translateY(-1px); }
+
+  /* ─────── HERO ─────── */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 80px;
+    align-items: center;
+    padding: 80px 0 100px;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--yc-deep);
+    margin-bottom: 28px;
+    font-weight: 500;
+  }
+  .eyebrow::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--yc);
+    box-shadow: 0 0 0 4px rgba(255,102,0,0.2);
+    animation: ping 1.8s ease-in-out infinite;
+  }
+  @keyframes ping {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(255,102,0,0.2); }
+    50%      { box-shadow: 0 0 0 8px rgba(255,102,0,0); }
+  }
+
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(48px, 7.2vw, 88px);
+    line-height: 0.96;
+    letter-spacing: -0.025em;
+    font-weight: 400;
+    margin-bottom: 28px;
+  }
+  h1 .ital { font-style: italic; color: var(--yc); }
+  h1 .strike { position: relative; display: inline-block; }
+  h1 .strike::after {
+    content: ""; position: absolute; left: -2%; right: -2%;
+    top: 55%; height: 3px; background: var(--ink);
+    transform: rotate(-2deg);
+  }
+
+  .lede {
+    font-size: 16px;
+    color: var(--ink-2);
+    max-width: 460px;
+    margin-bottom: 38px;
+    line-height: 1.65;
+  }
+
+  .cta-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 16px 24px;
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    letter-spacing: 0.01em;
+    border: none; cursor: pointer;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-primary {
+    background: var(--yc); color: white;
+    box-shadow: 0 4px 0 var(--yc-deep);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--yc-deep); }
+  .btn-primary:active { transform: translateY(2px); box-shadow: 0 0 0 var(--yc-deep); }
+  .btn-secondary {
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--line);
+  }
+  .btn-secondary:hover { border-color: var(--ink); }
+
+  .hero-meta {
+    margin-top: 32px;
+    font-size: 11px;
+    color: var(--ink-2);
+    letter-spacing: 0.02em;
+    display: flex; gap: 18px; align-items: center;
+  }
+  .hero-meta b { color: var(--ink); font-weight: 700; }
+
+  /* ─────── PHONE MOCKUP ─────── */
+  .phone-stage {
+    position: relative;
+    display: grid; place-items: center;
+    perspective: 1200px;
+  }
+  .phone {
+    position: relative;
+    width: 300px;
+    height: 600px;
+    background: #0E0E0E;
+    border-radius: 44px;
+    padding: 12px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.1) inset,
+      0 60px 80px -30px rgba(255,102,0,0.35),
+      0 30px 60px -20px rgba(0,0,0,0.4),
+      0 0 0 1px rgba(0,0,0,0.5);
+    transform: rotate(-4deg) translateY(0);
+    animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: rotate(-4deg) translateY(0); }
+    50%      { transform: rotate(-3deg) translateY(-10px); }
+  }
+  .phone::before {
+    content: ""; position: absolute;
+    top: 14px; left: 50%; transform: translateX(-50%);
+    width: 90px; height: 26px;
+    background: #000;
+    border-radius: 100px;
+    z-index: 5;
+  }
+  .screen {
+    width: 100%; height: 100%;
+    background: linear-gradient(170deg, #2A1206 0%, #1A0B05 60%, #0F0703 100%);
+    border-radius: 32px;
+    overflow: hidden;
+    position: relative;
+    display: flex; flex-direction: column;
+    color: white;
+  }
+
+  .status-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 28px 0; font-size: 11px; font-weight: 700;
+    color: rgba(255,255,255,0.85);
+  }
+  .status-icons { display: flex; gap: 4px; align-items: center; font-size: 10px; }
+
+  .call-header {
+    text-align: center;
+    padding: 50px 24px 24px;
+  }
+  .call-status {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--yc); margin-bottom: 22px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .call-status::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--yc); animation: blink 1.2s ease-in-out infinite;
+  }
+  @keyframes blink { 50% { opacity: 0.3; } }
+
+  .avatar {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    margin: 0 auto 18px;
+    background:
+      radial-gradient(circle at 30% 30%, #FF8533 0%, #FF6600 50%, #CC5200 100%);
+    display: grid; place-items: center;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 58px;
+    color: white;
+    box-shadow:
+      0 0 0 3px rgba(255,255,255,0.05),
+      0 0 0 8px rgba(255,102,0,0.15),
+      0 0 40px rgba(255,102,0,0.4);
+    position: relative;
+    animation: avatar-pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes avatar-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(255,255,255,0.05), 0 0 0 8px rgba(255,102,0,0.15), 0 0 40px rgba(255,102,0,0.4); }
+    50%      { box-shadow: 0 0 0 3px rgba(255,255,255,0.05), 0 0 0 14px rgba(255,102,0,0.08), 0 0 60px rgba(255,102,0,0.6); }
+  }
+
+  .callee-name {
+    font-family: 'Instrument Serif', serif;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .callee-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+  }
+  .timer {
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    margin-top: 14px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+
+  /* waveform */
+  .waveform {
+    display: flex; align-items: center; justify-content: center;
+    gap: 4px; height: 60px;
+    padding: 30px 28px 20px;
+  }
+  .waveform span {
+    display: block;
+    width: 4px;
+    background: var(--yc);
+    border-radius: 100px;
+    animation: wave 1.2s ease-in-out infinite;
+  }
+  .waveform span:nth-child(1)  { height: 12px; animation-delay: 0.0s; }
+  .waveform span:nth-child(2)  { height: 24px; animation-delay: 0.1s; }
+  .waveform span:nth-child(3)  { height: 36px; animation-delay: 0.2s; }
+  .waveform span:nth-child(4)  { height: 48px; animation-delay: 0.3s; }
+  .waveform span:nth-child(5)  { height: 32px; animation-delay: 0.4s; }
+  .waveform span:nth-child(6)  { height: 50px; animation-delay: 0.5s; }
+  .waveform span:nth-child(7)  { height: 22px; animation-delay: 0.6s; }
+  .waveform span:nth-child(8)  { height: 40px; animation-delay: 0.7s; }
+  .waveform span:nth-child(9)  { height: 28px; animation-delay: 0.8s; }
+  .waveform span:nth-child(10) { height: 44px; animation-delay: 0.9s; }
+  .waveform span:nth-child(11) { height: 18px; animation-delay: 1.0s; }
+  .waveform span:nth-child(12) { height: 32px; animation-delay: 1.1s; }
+  @keyframes wave {
+    0%, 100% { transform: scaleY(0.3); opacity: 0.5; }
+    50%      { transform: scaleY(1);   opacity: 1; }
+  }
+
+  /* call controls */
+  .controls {
+    margin-top: auto;
+    padding: 30px 32px 36px;
+    display: flex; justify-content: space-around; align-items: center;
+  }
+  .ctrl {
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: grid; place-items: center;
+    font-size: 22px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .ctrl.end {
+    background: #E5302E;
+    transform: rotate(135deg);
+    box-shadow: 0 4px 20px rgba(229,48,46,0.4);
+    border: none;
+  }
+
+  /* corner sticker on phone */
+  .sticker {
+    position: absolute;
+    top: -22px; right: -36px;
+    background: var(--yc);
+    color: white;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 17px;
+    padding: 10px 18px;
+    border-radius: 100px;
+    transform: rotate(8deg);
+    box-shadow: 0 4px 0 var(--yc-deep), 0 8px 20px rgba(255,102,0,0.3);
+    z-index: 6;
+    white-space: nowrap;
+  }
+
+  /* ─────── HOW IT WORKS ─────── */
+  section { padding: 80px 0; border-top: 1px solid var(--line); }
+  .section-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 48px;
+  }
+  .section-label {
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--yc-deep); font-weight: 500;
+  }
+  .section-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(32px, 4.5vw, 52px);
+    line-height: 1.0; letter-spacing: -0.02em;
+    font-weight: 400;
+    max-width: 700px;
+    margin-top: 10px;
+  }
+  .section-title em { color: var(--yc); }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .step {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 32px 28px;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .step:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px -10px rgba(255,102,0,0.2);
+    border-color: var(--yc);
+  }
+  .step-num {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 38px;
+    color: var(--yc);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+  .step-title {
+    font-size: 14px; font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  .step-body {
+    font-size: 13px; color: var(--ink-2);
+    line-height: 1.6;
+  }
+
+  /* ─────── EXPECT BLOCK ─────── */
+  .expect {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .expect-list {
+    display: grid; gap: 16px;
+  }
+  .expect-item {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .expect-item:last-child { border-bottom: none; }
+  .expect-item .num {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    color: var(--yc);
+    font-size: 18px;
+  }
+  .expect-item .body {
+    font-size: 13px; line-height: 1.6;
+  }
+  .expect-item .body b { font-weight: 700; }
+
+  .quote-card {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 16px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .quote-card::before {
+    content: "";
+    position: absolute;
+    bottom: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(255,102,0,0.3), transparent 70%);
+  }
+  .quote-card .qlabel {
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--yc); margin-bottom: 20px; font-weight: 500;
+  }
+  .quote-card .qtext {
+    font-family: 'Instrument Serif', serif;
+    font-size: 26px;
+    line-height: 1.25;
+    font-style: italic;
+    position: relative; z-index: 2;
+  }
+  .quote-card .qattr {
+    margin-top: 24px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.04em;
+    position: relative; z-index: 2;
+  }
+
+  /* ─────── BIG CTA ─────── */
+  .big-cta {
+    text-align: center;
+    padding: 100px 20px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background:
+      radial-gradient(ellipse at center, rgba(255,102,0,0.08), transparent 60%);
+  }
+  .big-cta h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 1.0; letter-spacing: -0.02em;
+    font-weight: 400;
+    margin-bottom: 20px;
+  }
+  .big-cta h2 em { color: var(--yc); }
+  .big-cta p {
+    color: var(--ink-2);
+    max-width: 480px;
+    margin: 0 auto 36px;
+    font-size: 14px;
+  }
+  .big-cta .btn-primary { font-size: 15px; padding: 20px 32px; }
+
+  /* ─────── FOOTER ─────── */
+  footer {
+    padding: 50px 0 40px;
+    color: var(--ink-2);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    line-height: 1.7;
+  }
+  .footer-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 30px; flex-wrap: wrap;
+  }
+  .footer-row a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+  .footer-row a:hover { color: var(--yc); }
+  .disclaimer {
+    max-width: 480px;
+    color: rgba(26,26,26,0.45);
+    font-size: 10px;
+    line-height: 1.6;
+  }
+
+  /* ─────── RESPONSIVE ─────── */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 60px; padding: 50px 0 70px; }
+    .phone-stage { order: -1; }
+    .phone { transform: rotate(-3deg) scale(0.9); }
+    .steps { grid-template-columns: 1fr; }
+    .expect { grid-template-columns: 1fr; gap: 40px; }
+    .nav-links a:not(.nav-tag) { display: none; }
+    .section-head { flex-direction: column; gap: 12px; align-items: flex-start; }
+  }
+  @media (max-width: 500px) {
+    .wrap { padding: 0 20px; }
+    .sticker { right: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">
+      <div class="logo-mark">P</div>
+      <span>Pitch&nbsp;Garry</span>
+    </div>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#what">What you'll hear</a>
+      <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+      <a href="#call" class="nav-tag">Make the call →</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div>
+      <div class="eyebrow">Built at Call My Agent Hackathon · May 17</div>
+      <h1>
+        Pitch your<br/>
+        startup to<br/>
+        <span class="ital">AI Garry.</span>
+      </h1>
+      <p class="lede">
+        Dial the number. Pitch your idea in 60 seconds. An AI parody of
+        a famously direct YC investor will tell you, on the spot, whether
+        it's a billion-dollar company or a "have you talked to users?"
+      </p>
+      <div class="cta-row">
+        <a href="#call" class="btn btn-primary">
+          📞&nbsp;&nbsp;Call now
+        </a>
+        <a href="https://github.com" target="_blank" rel="noopener" class="btn btn-secondary">
+          ⌘&nbsp;&nbsp;View on GitHub
+        </a>
+      </div>
+      <div class="hero-meta">
+        <span>Powered by <b>AgentPhone</b></span>
+        <span>·</span>
+        <span>Open source</span>
+        <span>·</span>
+        <span>No signup</span>
+      </div>
+    </div>
+
+    <!-- PHONE -->
+    <div class="phone-stage">
+      <div class="phone">
+        <div class="sticker">on call now</div>
+        <div class="screen">
+
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="status-icons">
+              <span>●●●●●</span>
+              <span>5G</span>
+              <span>🔋</span>
+            </div>
+          </div>
+
+          <div class="call-header">
+            <div class="call-status">Connected</div>
+            <div class="avatar">G</div>
+            <div class="callee-name">AI Garry Tan</div>
+            <div class="callee-sub">parody · powered by AgentPhone</div>
+            <div class="timer" id="timer">00:00</div>
+          </div>
+
+          <div class="waveform">
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+          </div>
+
+          <div class="controls">
+            <div class="ctrl">🔇</div>
+            <div class="ctrl">⌨</div>
+            <div class="ctrl">🔊</div>
+            <div class="ctrl end">📞</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="section-head">
+      <div>
+        <div class="section-label">How it works</div>
+        <h2 class="section-title">Three steps, <em>sixty seconds.</em></h2>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Dial the number</div>
+        <div class="step-body">
+          Tap call. AgentPhone routes you to an AI agent
+          configured to channel the energy of a famously
+          direct YC investor.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Pitch your idea</div>
+        <div class="step-body">
+          Sixty seconds. What you're building, who it's for,
+          and why now. No slides. No hedging. Just talk.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Get the verdict</div>
+        <div class="step-body">
+          Tough questions. Honest reactions. A thumbs up,
+          a thumbs down, or a "talk to users first."
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- WHAT YOU'LL HEAR -->
+  <section id="what">
+    <div class="section-head">
+      <div>
+        <div class="section-label">What you'll hear</div>
+        <h2 class="section-title">The kind of <em>tough love</em> only a phone call can deliver.</h2>
+      </div>
+    </div>
+
+    <div class="expect">
+      <div class="expect-list">
+        <div class="expect-item">
+          <div class="num">i.</div>
+          <div class="body"><b>Probing questions</b> about your wedge, your users, and your unit economics.</div>
+        </div>
+        <div class="expect-item">
+          <div class="num">ii.</div>
+          <div class="body"><b>Pattern matching</b> against thousands of startups it's been trained to recognize.</div>
+        </div>
+        <div class="expect-item">
+          <div class="num">iii.</div>
+          <div class="body"><b>Blunt feedback</b> when your idea sounds like a feature, not a company.</div>
+        </div>
+        <div class="expect-item">
+          <div class="num">iv.</div>
+          <div class="body"><b>Encouragement</b> when you've actually found something rare.</div>
+        </div>
+        <div class="expect-item">
+          <div class="num">v.</div>
+          <div class="body"><b>A final verdict.</b> Good idea, bad idea, or "do things that don't scale."</div>
+        </div>
+      </div>
+
+      <div class="quote-card">
+        <div class="qlabel">Disclaimer</div>
+        <div class="qtext">
+          A satirical, AI-generated character. Not affiliated with
+          Y Combinator or any of its partners. For entertainment
+          and hackathon purposes only.
+        </div>
+        <div class="qattr">— the lawyers, probably</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- BIG CTA -->
+  <section id="call" class="big-cta">
+    <h2>Got a startup idea?<br/><em>Make the call.</em></h2>
+    <p>One ring. One pitch. One verdict.<br/>Then go build the thing.</p>
+    <a href="#" class="btn btn-primary" id="bigCallBtn">
+      📞&nbsp;&nbsp;Call AI Garry now
+    </a>
+  </section>
+
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-row">
+      <div>
+        Built at the <a href="https://events.ycombinator.com/CallMyAgentHackathon" target="_blank" rel="noopener">Call My Agent Hackathon</a><br/>
+        Powered by <a href="https://agentphone.to" target="_blank" rel="noopener">AgentPhone</a><br/>
+        Open source on <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <div class="disclaimer">
+        "Pitch Garry" is a parody project featuring an AI-generated
+        character inspired by public-figure tropes in startup
+        culture. Not affiliated with, endorsed by, or representative
+        of Y&nbsp;Combinator, Garry Tan, or any real investor. Any
+        resemblance to actual advice is coincidental.
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // Tick the call timer for ambient effect.
+  (function() {
+    const el = document.getElementById('timer');
+    let s = 0;
+    setInterval(() => {
+      s++;
+      const mm = String(Math.floor(s/60)).padStart(2,'0');
+      const ss = String(s%60).padStart(2,'0');
+      el.textContent = mm + ':' + ss;
+    }, 1000);
+  })();
+
+  // Wire CTAs — point these at your AgentPhone number.
+  // Replace the href with `tel:+1XXXXXXXXXX` or your AgentPhone link.
+  document.querySelectorAll('a[href="#call"], #bigCallBtn').forEach(el => {
+    el.addEventListener('click', (e) => {
+      // For now, scroll to CTA section. Replace with tel: link when number is live.
+      if (el.id === 'bigCallBtn') {
+        e.preventDefault();
+        alert('Hook this up to your AgentPhone number — replace the href in the script with tel:+1XXXXXXXXXX');
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
