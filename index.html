@@ -503,78 +503,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* ─────── CALLBACK FORM ─────── */
-  .callback-card {
-    max-width: 460px;
-    margin: 60px auto 0;
-    padding: 32px 28px;
-    background: white;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    box-shadow: 0 20px 50px -20px rgba(255,102,0,0.2);
-  }
-  .callback-label {
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--yc-deep);
-    margin-bottom: 18px;
-    text-align: center;
-    font-weight: 500;
-  }
-  .callback-form {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .callback-form input[type="tel"] {
-    flex: 1 1 200px;
-    padding: 16px 18px;
-    font-family: inherit;
-    font-size: 14px;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--cream);
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    font-variant-numeric: tabular-nums;
-  }
-  .callback-form input[type="tel"]:focus {
-    border-color: var(--yc);
-    box-shadow: 0 0 0 3px rgba(255,102,0,0.15);
-  }
-  .callback-btn {
-    flex: 0 0 auto;
-  }
-  .callback-btn[disabled] {
-    opacity: 0.55;
-    cursor: not-allowed;
-    transform: none !important;
-    box-shadow: 0 4px 0 var(--yc-deep) !important;
-  }
-  .callback-status {
-    margin-top: 14px;
-    font-size: 12px;
-    min-height: 18px;
-    text-align: center;
-    letter-spacing: 0.01em;
-  }
-  .callback-status.ok    { color: #1A7F37; }
-  .callback-status.err   { color: #B42318; }
-  .callback-status.busy  { color: var(--ink-2); }
-  .callback-fineprint {
-    margin-top: 16px;
-    font-size: 10px;
-    color: rgba(26,26,26,0.45);
-    line-height: 1.5;
-    text-align: center;
-  }
-  @media (max-width: 500px) {
-    .callback-form { flex-direction: column; }
-    .callback-btn { width: 100%; justify-content: center; }
-  }
-
   /* ─────── FOOTER ─────── */
   footer {
     padding: 50px 0 40px;
@@ -803,30 +731,6 @@
       or dial <a href="tel:+14177644332"><b>+1 (417) 764-4332</b></a>
     </div>
 
-    <!-- CALLBACK FORM -->
-    <div class="callback-card">
-      <div class="callback-label">— or have Garry call you —</div>
-      <form id="callbackForm" class="callback-form" autocomplete="off">
-        <input
-          type="tel"
-          id="callbackPhone"
-          name="phone"
-          placeholder="+1 (555) 000-0000"
-          inputmode="tel"
-          required
-          aria-label="Your phone number"
-        />
-        <button type="submit" class="btn btn-primary callback-btn">
-          📞&nbsp;&nbsp;Ring me
-        </button>
-      </form>
-      <div class="callback-status" id="callbackStatus"></div>
-      <div class="callback-fineprint">
-        By submitting, you consent to receive one automated call from
-        an AI parody character. US/Canada numbers only.
-      </div>
-    </div>
-
   </section>
 
 
@@ -863,69 +767,6 @@
     }, 1000);
   })();
 
-  // ─── Callback form: ask AgentPhone to ring the caller ───
-  // Set this to your deployed Cloudflare Worker (or other proxy) URL.
-  // The proxy holds your AGENTPHONE_API_KEY and forwards to AgentPhone.
-  // Example: "https://pitch-garry-call.YOURNAME.workers.dev"
-  const CALLBACK_ENDPOINT = ""; // ← paste your worker URL here
-
-  (function() {
-    const form    = document.getElementById('callbackForm');
-    const input   = document.getElementById('callbackPhone');
-    const status  = document.getElementById('callbackStatus');
-    const button  = form.querySelector('button[type="submit"]');
-    if (!form) return;
-
-    function setStatus(msg, kind) {
-      status.textContent = msg;
-      status.className = 'callback-status ' + (kind || '');
-    }
-
-    function toE164(raw) {
-      // Strip everything except digits and a leading +
-      let s = raw.trim().replace(/[^\d+]/g, '');
-      if (s.startsWith('+')) return s.length >= 10 ? s : null;
-      // Assume US/Canada if no country code
-      if (s.length === 10) return '+1' + s;
-      if (s.length === 11 && s.startsWith('1')) return '+' + s;
-      return null;
-    }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const phone = toE164(input.value);
-      if (!phone) {
-        setStatus("Enter a valid phone number (e.g. 415-555-0123)", 'err');
-        return;
-      }
-      if (!CALLBACK_ENDPOINT) {
-        setStatus("Backend not connected yet — see AGENT_SETUP.md.", 'err');
-        return;
-      }
-
-      button.disabled = true;
-      setStatus("Dialing you now…", 'busy');
-
-      try {
-        const res = await fetch(CALLBACK_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ to: phone })
-        });
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text || ('HTTP ' + res.status));
-        }
-        setStatus("📞 Your phone should ring in a few seconds. Pick up.", 'ok');
-        input.value = '';
-      } catch (err) {
-        console.error(err);
-        setStatus("Couldn't place the call. Try again or dial directly.", 'err');
-      } finally {
-        setTimeout(() => { button.disabled = false; }, 5000);
-      }
-    });
-  })();
 </script>
 
 </body>
