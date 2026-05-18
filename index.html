@@ -487,13 +487,18 @@
 
   .phone-number {
     margin-top: 18px;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--ink-2);
   }
   .phone-number a, .phone-number-big a {
     color: var(--ink); text-decoration: none;
     border-bottom: 2px solid var(--yc);
     padding-bottom: 1px;
+  }
+  .phone-number a {
+    font-size: 16px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
   }
   .phone-number a:hover, .phone-number-big a:hover { color: var(--yc); }
   .phone-number-big {
