@@ -772,6 +772,24 @@
     }, 1000);
   })();
 
+  // Keep shared URLs clean: don't restore previous scroll, don't honor
+  // a #hash on first load, and don't push #hash into the URL when the
+  // user clicks an in-page anchor link.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  if (location.hash) {
+    history.replaceState(null, '', location.pathname + location.search);
+    window.scrollTo(0, 0);
+  }
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const id = a.getAttribute('href').slice(1);
+    if (!id) return;
+    const target = document.getElementById(id);
+    if (!target) return;
+    e.preventDefault();
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 </script>
 
 </body>
